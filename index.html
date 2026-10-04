@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#140d09"><title>For Totonyun</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--desk:#140d09;--amber:#ffcf8a;--paper:#f3e7d3;--ink:#26284a;--wax:#a3283a;--serif:'Fraunces',Georgia,serif;--hand:'Caveat','Segoe Print',cursive}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--desk);color:#f6ece0;font-family:var(--serif)}
+body{background:radial-gradient(90% 60% at 50% 38%,#3a2416,var(--desk) 70%)}
+#room{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:max(1rem,env(safe-area-inset-top)) 1rem max(1rem,env(safe-area-inset-bottom))}
+#shade{position:fixed;inset:0;background:#0a0604;transition:opacity 2.2s;pointer-events:none;z-index:5}
+.lit #shade{opacity:0}.dim #shade{opacity:.72;transition:opacity 1.5s}
+.lamp{position:fixed;inset:0;margin:auto;width:5rem;height:5rem;z-index:6;border:0;border-radius:50%;background:#ffcf8a22;font-size:2rem;cursor:pointer;animation:p 2.4s infinite}
+.lit .lamp{display:none}
+@keyframes p{50%{box-shadow:0 0 40px 10px #ffcf8a55}}
+.hint{position:fixed;top:56%;width:100%;text-align:center;z-index:6;font-family:var(--hand);font-size:1.6rem;color:var(--amber);pointer-events:none}
+.lit .hint{display:none}
+/* envelope */
+.env{position:absolute;top:30%;width:min(80vw,20rem);aspect-ratio:3/2;background:#e6d3b3;border-radius:6px;box-shadow:0 20px 50px #000a;cursor:pointer;display:grid;place-items:center;opacity:0;transition:opacity 1.6s 1.4s,transform 1s}
+.lit .env{opacity:1}.env.gone{opacity:0!important;transform:translateY(40vh);transition:1s;pointer-events:none}
+.env b{font:600 2.2rem var(--hand);color:var(--ink);margin-top:1.4rem}
+.env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49.5%,#cdb78f 50%) top/100% 55% no-repeat,linear-gradient(to bottom left,transparent 49.5%,#cdb78f 50%) top/100% 55% no-repeat;transform-origin:top;transition:transform .8s}
+.env.open::before{transform:rotateX(180deg)}
+.env i{position:absolute;top:36%;width:2.6rem;height:2.6rem;border-radius:50%;background:radial-gradient(#c63a4d,var(--wax));box-shadow:0 3px 8px #0008;transition:opacity .4s}
+.env.open i{opacity:0}
+/* paper */
+.paper{width:min(92vw,30rem);flex:1;min-height:0;margin-top:1rem;background:var(--paper);color:var(--ink);border-radius:4px;padding:1.6rem 1.4rem;overflow-y:auto;font:500 1.7rem/1.35 var(--hand);box-shadow:0 25px 60px #000b;transform:translateY(60vh) rotate(-1.5deg);opacity:0;transition:transform 1.4s cubic-bezier(.2,.8,.2,1),opacity 1s}
+.paper.up{transform:rotate(-.6deg);opacity:1}
+.paper p{margin-bottom:.7rem}.paper s{text-decoration-color:var(--wax);text-decoration-thickness:2px}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--ink);vertical-align:-.15em;animation:b 1s steps(1) infinite}@keyframes b{50%{opacity:0}}
+.skip{position:fixed;bottom:5.5rem;right:1rem;z-index:4;font:.9rem var(--serif);color:#f6ece099;background:none;border:0}
+/* objects */
+.dock{display:flex;gap:.9rem;margin-top:.9rem;opacity:0;pointer-events:none;transition:opacity 1.5s}
+.dock.on{opacity:1;pointer-events:auto}
+.dock{flex-wrap:wrap;justify-content:center}.obj{width:3.2rem;height:3.2rem;border-radius:50%;border:1px solid #ffcf8a55;background:#2a1a10;font-size:1.6rem;cursor:pointer;position:relative;box-shadow:0 0 18px #ffcf8a22}
+.obj.call{animation:p 2s infinite}
+.steam{position:absolute;left:50%;top:-1.8rem;font-size:1.2rem;opacity:0;transform:translateX(-50%)}
+.steam.go{animation:s 2.5s}@keyframes s{0%{opacity:0;transform:translate(-50%,10px)}30%{opacity:.8}100%{opacity:0;transform:translate(-50%,-30px)}}
+.toast{position:fixed;top:max(1.2rem,env(safe-area-inset-top));left:50%;transform:translate(-50%,-20px);z-index:20;background:#2a1a10;border:1px solid #ffcf8a55;border-radius:1rem;padding:.8rem 1.1rem;max-width:88vw;text-align:center;opacity:0;transition:.5s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+/* overlays */
+.ov{position:fixed;inset:0;z-index:10;background:#0a0604e6;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.5rem;text-align:center}
+.ov{overflow-y:auto}.bub{background:#2a1a10;border:1px solid #ffcf8a44;border-radius:1.2rem 1.2rem 1.2rem .3rem;padding:.8rem 1rem;text-align:left;max-width:90%;margin-bottom:.7rem;animation:f .7s}.bub:nth-child(even){align-self:flex-end;border-radius:1.2rem 1.2rem .3rem 1.2rem;background:#3a2416}.tkt{border:2px dashed var(--amber);border-radius:1rem;padding:1.1rem;text-align:center;margin:1rem 0;animation:f 1s}.ov.on{display:flex;animation:f .6s}@keyframes f{from{opacity:0}}
+.pol{width:min(78vw,19rem);perspective:1000px;cursor:pointer}
+.pol>div{position:relative;aspect-ratio:4/5.2;transition:transform .8s;transform-style:preserve-3d}.pol.flip>div{transform:rotateY(180deg)}
+.pol .f,.pol .b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#f6ece0;padding:.7rem;border-radius:3px;box-shadow:0 20px 50px #000}
+.pol img,.pol .ph{width:100%;height:84%;object-fit:cover;display:block}.ph{background:linear-gradient(160deg,#4a2342,#c47a6a)}
+.pol .b{transform:rotateY(180deg);display:grid;place-items:center;color:var(--ink);font:600 1.9rem/1.2 var(--hand);padding:1.4rem}
+.btn{font:1rem var(--serif);padding:.75rem 1.4rem;border-radius:999px;border:1px solid #ffcf8a88;background:none;color:var(--amber);cursor:pointer}
+.btn.sel{background:var(--amber);color:var(--desk)}
+.disc{width:6rem;height:6rem;border-radius:50%;background:conic-gradient(#1a0f0a,#5a3a22,#1a0f0a,#7a4a2a,#1a0f0a);animation:r 6s linear infinite paused}.disc.play{animation-play-state:running}@keyframes r{to{transform:rotate(360deg)}}
+.big{font-size:clamp(2.2rem,10vw,3.4rem);font-weight:400;line-height:1.1}.hand{font:600 1.8rem var(--hand);color:var(--amber)}
+.fin>*{opacity:0;transition:opacity 1.4s}.fin>.in{opacity:1}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<div id="room"><div class="env" id="env"><i></i><b>Totonyun</b></div>
+<div class="paper" id="paper" aria-live="polite"></div>
+<div class="dock" id="dock"></div></div>
+<div id="shade"></div>
+<button class="lamp" id="lamp" aria-label="Turn on the lamp">💡</button><div class="hint">tap the lamp</div>
+<button class="skip hidden" id="skip" hidden>tap to speed up</button>
+<div class="toast" id="toast"></div>
+<div class="ov" id="ov"></div><canvas id="fx"></canvas>
+<script>
+// ===============================
+// EDIT TOTONYUN'S BIRTHDAY CONTENT
+// ===============================
+const SPEED=1.6; // typing slowness: 1 = fast, 1.6 = average, 2 = slow
+const C={
+ // In the letter, ~~crossed out~~ text is typed, then struck through. It makes it feel handwritten.
+ letter:[
+  "Totonyun,",
+  "I was going to ~~buy you something~~ say something clever here. But the truth is, nothing clever comes close to how I actually feel.",
+  "I don't have an expensive gift for you. What I have is time, and I spent every bit of it thinking about you.",
+  "I could have just texted Happy Birthday, but you're not a ~~normal~~ text-message kind of girl. You're the kind of girl I'd build a whole little room for.",
+  "It started with a random TikTok. Just two people talking. Somewhere along the way we were flirting, and neither of us noticed. Now I can't imagine my days without you in them.",
+  "You once told me I seem kind. You don't say much, Totonyun, but you notice everything. You've been quietly taking notes on me, and I want every single one of them to be a good one.",
+  "You make my days softer. Ordinary things feel special, and I catch myself smiling at nothing, only because something reminded me of you.",
+  "And that joke you made, that you like it when I stay in so other girls can't flirt with me? I heard it. I liked it a little too much. There's nobody else, my love. My eyes, my time and my heart are already with you.",
+  "I hope this year gives you everything you've been quietly hoping for. I hope you laugh until it hurts, sleep peacefully, and feel safe and adored, always. And I hope that when you look back on this year, I'm somewhere in every good memory.",
+  "You're my favorite notification, my favorite thought, and my favorite person.",
+  // Optional: add your own "I love you" line here if and when you want to say it.
+  "Happy Birthday, Totonyun 💖❤️💕😘",
+  "Yours, Manu 💌",
+  "P.S. Look around the desk. Start with the phone. 📱"],
+ photos:[ // put files in assets/photos/
+  {src:"assets/photos/1.jpg",back:"Yeah... you actually look this good. And somehow you're mine. Unfair."},
+  {src:"assets/photos/2.jpg",back:"I looked at this one for way longer than I'll admit."},
+  {src:"assets/photos/3.jpg",back:"This smile is the reason I'm bad at being on time to things. I get distracted."}],
+ songs:[{title:"Song One",src:"assets/music/song1.mp3"},{title:"Song Two",src:"assets/music/song2.mp3"}],
+ story:[
+  "It started with a random TikTok. 📱",
+  "Just two people talking. Nothing planned.",
+  "Somewhere along the way we were flirting... and neither of us noticed. 😌",
+  "Then you told me I seem like a kind person.",
+  "That meant a lot. You're simple, you don't say much, but you notice everything. You take notes on how people really are.",
+  "So I'm trying to make them good notes.",
+  "And one day you joked that you like it when I stay in, so other girls can't see me or try anything. 😂",
+  "You said it like a joke. I noticed anyway.",
+  "Fine. I'm staying in. Not because I was told to. Because there's nowhere I'd rather be than wherever you are."],
+ coupon:{title:"🎟️ One Stay-In Night",text:"Valid forever. Redeemable by Totonyun whenever she wants. Side effects: me, fully focused on you.",done:"Redeemed. I'm already on my way. 😌"},
+ cup:"Pretend we're having coffee together right now. I'd be staring at you, not the cup.",
+ lamp:"Lamplight suits you. Everything does.",
+ wish:"Make a wish... and keep it close.",
+ finale:"HAPPY BIRTHDAY, TOTONYUN! 🎂❤️", finaleSub:"Okay, NOW we're done. (I'm never really done thinking about you.)",
+ signoff:"Made with a little code, a lot of time, and good intentions. ❤️", from:"Manu",
+ candleHint:"There's one more thing on the desk, just for you..."
+};
+// ===============================
+const $=s=>document.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const paper=$('#paper'),dock=$('#dock'),ov=$('#ov'),toast=$('#toast');
+let fast=false,ac;
+function chime(n=[523,659,784],v=.05){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();n.forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+i*.13;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.03);g.gain.exponentialRampToValueAtTime(.0001,t+1.5);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+1.6)})}catch(e){}}
+function say(t){toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),3200)}
+function img(src,cls){const i=new Image();i.src=src;i.alt='';if(cls)i.className=cls;i.onerror=()=>i.replaceWith(Object.assign(document.createElement('div'),{className:'ph'}));return i}
+async function type(el,s){for(const ch of s){el.insertAdjacentText('beforeend',ch);paper.scrollTop=paper.scrollHeight;await sleep(fast?4:SPEED*(ch==='.'||ch===','||ch==='?'?260:42+Math.random()*50))}}
+async function write(){
+ const caret=document.createElement('span');caret.className='caret';
+ for(const line of C.letter){
+  const p=document.createElement('p');paper.append(p);p.append(caret);
+  for(const part of line.split(/(~~.+?~~)/)){
+   if(!part)continue;const span=document.createElement('span');caret.before(span);
+   if(part.startsWith('~~')){const s=document.createElement('s');span.append(s);await type(s,part.slice(2,-2));await sleep(fast?10:700);s.style.textDecoration='line-through';span.insertAdjacentText('beforeend',' ');await sleep(fast?10:300)}
+   else await type(span,part);}
+  await sleep(fast?20:SPEED*650)}
+ caret.remove();$('#skip').hidden=true;
+}
+// objects
+const objs=[
+ {e:'📱',l:'Phone',f:phone,cls:'call'},
+ {e:'🖼️',l:'Photo',f:()=>photo(0)},
+ {e:'☕',l:'Coffee',f:b=>{const s=b.querySelector('.steam');s.classList.remove('go');void s.offsetWidth;s.classList.add('go');say(C.cup)}},
+ {e:'📻',l:'Radio',f:radio},
+ {e:'💡',l:'Lamp',f:()=>{document.body.classList.toggle('dim');say(C.lamp)}},
+ {e:'🕯️',l:'Candle',f:finale,cls:'call'}];
+function photo(i){
+ const p=C.photos[i%C.photos.length];ov.innerHTML='';ov.classList.add('on');
+ const w=document.createElement('div');w.className='pol';
+ w.innerHTML='<div><div class="f"></div><div class="b">'+p.back+'</div></div>';w.querySelector('.f').append(img(p.src));
+ w.onclick=()=>w.classList.toggle('flip');
+ const n=document.createElement('button');n.className='btn';n.textContent=C.photos.length>1?'Next one ›':'Close';n.onclick=()=>i+1<C.photos.length?photo(i+1):ov.classList.remove('on');
+ const c=document.createElement('button');c.className='btn';c.textContent='Close';c.onclick=()=>ov.classList.remove('on');
+ const h=document.createElement('p');h.className='hand';h.textContent='tap to turn it over';
+ ov.append(h,w,n,c);}
+const audio=new Audio();audio.loop=true;let cur=-1;
+function radio(){
+ ov.innerHTML='';ov.classList.add('on');const d=document.createElement('div');d.className='disc'+(audio.paused?'':' play');
+ const t=document.createElement('p');t.className='hand';t.textContent=cur<0?'♪ our soundtrack':'♪ '+C.songs[cur].title;
+ const row=document.createElement('div');row.style.cssText='display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center';
+ C.songs.forEach((s,i)=>{const b=document.createElement('button');b.className='btn'+(i===cur?' sel':'');b.textContent=s.title;
+  b.onclick=()=>{cur=i;audio.src=s.src;audio.play().catch(()=>say('Add your mp3 to assets/music/'));radio()};row.append(b)});
+ const pz=document.createElement('button');pz.className='btn';pz.textContent=audio.paused?'Play':'Pause';pz.onclick=()=>{cur<0?row.firstChild.click():(audio.paused?audio.play():audio.pause(),radio())};
+ const c=document.createElement('button');c.className='btn';c.textContent='Close';c.onclick=()=>ov.classList.remove('on');
+ ov.append(d,t,row,pz,c);}
+async function phone(){
+ ov.innerHTML='';ov.classList.add('on');const w=document.createElement('div');w.style.cssText='margin:auto;width:min(92vw,26rem);display:flex;flex-direction:column;padding:1rem 0';ov.append(w);
+ const id=Date.now();phone.id=id;
+ for(const t of C.story){if(phone.id!==id||!ov.classList.contains('on'))return;const b=document.createElement('div');b.className='bub';b.textContent=t;w.append(b);b.scrollIntoView({behavior:'smooth',block:'end'});await sleep(Math.max(1800,t.length*45))}
+ const k=document.createElement('div');k.className='tkt';k.innerHTML='<p class="hand">'+C.coupon.title+'</p><p style="margin:.5rem 0 1rem">'+C.coupon.text+'</p>';
+ const r=document.createElement('button');r.className='btn';r.textContent='Redeem';r.onclick=()=>{r.remove();chime([659,784,988],.06);burst(innerWidth/2,innerHeight*.5,50);say(C.coupon.done)};k.append(r);w.append(k);
+ const c=document.createElement('button');c.className='btn';c.style.alignSelf='center';c.textContent='Close';c.onclick=()=>{ov.classList.remove('on')};w.append(c);k.scrollIntoView({behavior:'smooth'})}
+async function finale(){
+ ov.innerHTML='<p class="big">🕯️</p><p class="hand">'+C.wish+'</p>';ov.classList.add('on');await sleep(3500);
+ ov.className='ov on fin';chime([523,659,784,1047],.07);
+ for(let k=0;k<5;k++)setTimeout(()=>burst(innerWidth*(.15+.17*k),innerHeight*.4,40),k*300);
+ const mk=(c,t)=>{const e=document.createElement('p');e.className=c;e.textContent=t;ov.append(e);return e};
+ ov.innerHTML='';const a=mk('big',C.finale),b=mk('',C.finaleSub),c=mk('',C.signoff),d=mk('hand','— '+C.from);
+ for(const e of [a,b,c,d]){await sleep(1500);e.classList.add('in')}}
+// confetti
+const cv=$('#fx'),cx=cv.getContext('2d');let ps=[],raf;
+function sz(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio;cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}addEventListener('resize',sz);sz();
+function burst(x,y,n){const k=['#ffcf8a','#e58b9a','#f6ece0','#c63a4d'];for(let i=0;i<n;i++){const a=Math.random()*6.28,v=3+Math.random()*7;ps.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4,l:1,c:k[i%4],s:6+Math.random()*9,h:i%3==0,r:Math.random()*6})}if(!raf)loop()}
+function loop(){cx.clearRect(0,0,innerWidth,innerHeight);ps=ps.filter(p=>p.l>0);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.14;p.vx*=.99;p.l-=.006;p.r+=.05;cx.globalAlpha=Math.max(p.l,0);cx.fillStyle=p.c;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);if(p.h){cx.font=p.s*1.6+'px serif';cx.fillText('♥',0,0)}else cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()});raf=ps.length?requestAnimationFrame(loop):null}
+// flow
+objs.forEach(o=>{const b=document.createElement('button');b.className='obj '+(o.cls||'');b.setAttribute('aria-label',o.l);b.innerHTML=o.e+(o.l==='Coffee'?'<span class="steam">〰️</span>':'');b.onclick=()=>o.f(b);if(o.l==='Candle')b.hidden=true,o.el=b;dock.append(b)});
+$('#lamp').onclick=()=>{document.body.classList.add('lit');chime([392,523],.04)};
+$('#env').onclick=async function(){this.onclick=null;chime([523,784,988],.05);this.classList.add('open');await sleep(1100);this.classList.add('gone');paper.classList.add('up');
+ $('#skip').hidden=false;paper.onclick=$('#skip').onclick=()=>fast=true;await sleep(1400);await write();
+ dock.classList.add('on');say(C.candleHint);await sleep(6000);objs[5].el.hidden=false;};
+</script></body></html>
